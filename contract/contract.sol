@@ -5,5 +5,6 @@ contract Versioning{
     mapping (address => uint) document; //document's hash
     address public creator; //document's creator
     address public mod_user; //user who made last modify
+    uint public date_mod; //last modify
 
 }
