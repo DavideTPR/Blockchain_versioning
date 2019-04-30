@@ -133,9 +133,14 @@ var VersioningContract = web3.eth.contract([
 
 //contract address
 var Versioning = VersioningContract.at('0x0334658Cd150d2DA479ca89cC3081791DC6e1a8C');
-console.log(Versioning);
+//console.log(Versioning);
 
 var balance = web3.eth.getBalance(web3.eth.accounts[0]);
-console.log(balance);
+//console.log(balance);
 
-console.log(Versioning.create(0,0, { gas: 1000000 }));
+Versioning.methods.create(0,234).call({ gas: 3000000 }).then(console.log);
+//var inf = Versioning.create(0,234, { gas: 1000000 })
+//console.log(inf[0]);
+//console.log(inf[1]);
+
+//Versioning.update(1, 0,2, { gas: 3000000 }, function(err, res){ console.log(res) });
