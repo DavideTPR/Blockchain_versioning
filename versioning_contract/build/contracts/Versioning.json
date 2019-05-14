@@ -4362,12 +4362,12 @@
     "5777": {
       "events": {},
       "links": {},
-      "address": "0x0334658Cd150d2DA479ca89cC3081791DC6e1a8C",
-      "transactionHash": "0x2c943029343eb6ab9311e62f7e0a778628ccd93737a7d34abe833599b4365d1a"
+      "address": "0x486Dc22c4EbfB2E4F3B0790D6C64061341B0dF98",
+      "transactionHash": "0xeffa68d4f01538a5f163a718bb73ff84ac484f94444b9409e09e01d4f060fb78"
     }
   },
   "schemaVersion": "3.0.6",
-  "updatedAt": "2019-04-11T15:30:08.196Z",
+  "updatedAt": "2019-05-14T08:23:56.960Z",
   "devdoc": {
     "author": "Davide Tarasconi",
     "methods": {

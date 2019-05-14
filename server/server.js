@@ -1,17 +1,19 @@
 const http = require('http');
 const fs = require('fs');
-const express = require('express');
-const parser = require('body-parser');
+const url = require('url');
+//const express = require('express');
+//const parser = require('body-parser');
 
-const app = express();
+/*const app = express();
 app.use(parser.urlencoded({extended:true}))
 app.post("/subscribe.html", function(requ, resp){
     console.log(requ.body);
-});
+});*/
 
 var server = http.createServer(function(req, res){
     //res.writeHead(200, {'Content-Type': 'text/html'});
     //res.end("Hello World!\n");
+    console.log(url.parse(req.url, true));
     if(req.url == "/" || req.url == "/index" || req.url == "/index.html"){
         sendFile(res, '../client/HTML/index.html', 'text/html');
     }
