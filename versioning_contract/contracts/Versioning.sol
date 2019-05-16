@@ -15,6 +15,8 @@ contract Versioning{
 
     mapping (uint256 => Document[]) public doc;    //list of the documents and relative "branch"
 
+    //event to notify the creation of a document
+    event CreateDocument(uint256 id, uint256 version);
     //event to notify the modification of a document
     event ChangeDocument(address usr, uint256 doc, uint256 version);
 
