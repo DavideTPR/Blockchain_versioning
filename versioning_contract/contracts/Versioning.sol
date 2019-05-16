@@ -59,4 +59,19 @@ contract Versioning{
 
         return doc[id][ver].version+1;
     }
+    
+    ///@dev get version info
+    ///@param id document identifier
+    ///@param ver actual version of the document
+    function get(uint256 id, uint256 ver) public view returns (address creator, uint256 value, uint creation, uint8
+    version){
+        Document memory d = doc[id][ver];
+        return (d.creator, d.value, d.creation, d.version);
+    }
+
+    ///@dev get number of versions of a document
+    ///@param id document identifier
+    function getNumVer(uint256 id) public view returns (uint256 num){
+        return doc[id].length;
+    }
 }
