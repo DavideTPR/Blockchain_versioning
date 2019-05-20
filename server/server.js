@@ -13,6 +13,15 @@ var contractABI;//contract ABI
 var contractAddress; //contract address
 var contract; //the contract
 
+var readUser; //user of the system
+
+function User(first, last, password, wallet){
+  this.first = first;
+  this.last = last;
+  this.password = password;
+  this.wallet = wallet;
+}
+
 
 //Parser for reading form data
 app.use(parser.urlencoded({ extended: true })); 
@@ -50,6 +59,10 @@ app.post('/subscribe', (req, res) => {
     console.log("Password: "+req.body.pwd);
     console.log("Wallet: "+req.body.wal);
 
+    //var dataR = JSON.parse(fs.readFileSync('data/user.json'));
+    //console.log(dataR);
+    //console.log(new User(req.body.first, req.body.last, req.body.pwd, req.body.wal));
+    readUser.user.push(new User(req.body.first, req.body.last, req.body.pwd, req.body.wal));
     var user = {
       first: req.body.first,
       last: req.body.last,
@@ -57,8 +70,7 @@ app.post('/subscribe', (req, res) => {
       wallet: req.body.wal
     };
 
-    var data = JSON.stringify(user);
-    fs.writeFileSync('data/user.json', data); 
+
 });
 
 
@@ -67,6 +79,7 @@ app.post('/subscribe', (req, res) => {
 //START SERVER
 app.listen(8000, function(){
     setContract();  //create the contract
+    readStartingData();
     console.log("Server running at http://127.0.0.1:8000/\n");
     
     //EXAMPLE OF TRANSACTION USING SMART CONTRACT'S METHODS USING CALL AND SEND
@@ -119,6 +132,18 @@ function sendFile(response, pathPage, cont){
         response.end();
     });
 }
+
+//read data files starting the server
+function readStartingData(){
+  readUser = JSON.parse(fs.readFileSync('data/user.json'));
+}
+
+//timer to save data
+setInterval(function(){
+  console.log("\nSaving data....\n")
+  var dataW = JSON.stringify(readUser);
+  fs.writeFileSync('data/user.json', dataW); 
+}, 20000);
 
 //set contract information
 function setContract(){
