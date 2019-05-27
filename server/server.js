@@ -122,7 +122,7 @@ app.listen(8000, function(){
       }
     });*/
 });
-
+ 
 //send file
 function sendFile(response, pathPage, cont){
     fs.readFile(pathPage, function(err, page){
