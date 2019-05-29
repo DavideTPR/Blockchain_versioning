@@ -40,11 +40,13 @@ function User(id, first, last, password, wallet, username){
   this.wallet = wallet;
 }
 
-function Document(creator, value, creation, version){
+function Document(id, creator, path, creation, version, description){
+  this.id = id;
   this.creator = creator;
   this.version = version;
-  this.value = value;
+  this.path = path;
   this.creation = creation;
+  this.description = description;
 }
 
 
@@ -73,7 +75,7 @@ app.get("/login.html" || "/login", function(req, res){
 app.get("/list", function(req, res){
   console.log("getListDoc");
   res.writeHead(200, {'Content-Type': 'text/html'});
-  res.write(JSON.stringify(readUser));
+  res.write(JSON.stringify(listDoc));
   res.end();
 });
 
@@ -135,7 +137,7 @@ app.post('/login', (req, res) => {
       console.log("User exist");
     }
     else{
-      console.log("Nooooooooooooooo");
+      console.log("User not found.");
     }
   }
 
@@ -151,17 +153,19 @@ app.post('/add', upload.single('document'), (req, res, next) => {
     error.httpStatusCode = 400;
     return next(error);
   }
-  console.log(req.body.document);
-  console.log(file);
+  //console.log(req.body.document);
+  //console.log(file);
 
-  var hash = sha256.update(file.path);
-  console.log(hash);
+  //var hash = sha256.update(file.path);
   //hash = sha256.update(file.path).digest('base64');
   //console.log(hash);
-  hash = sha256.update(file.path).digest('hex');
-  console.log(hash);
+  var hash = sha256.update(file.path).digest('hex');
+  //console.log(hash);
 
-  contract.methods.create(0,hash).send({from: "0xBE8751f79E9369C3F9E08E864d3229E14Fbf1D8D", gas: 4712388, gasPrice: 100000000000});
+  listDoc.doc.push(new Document(listDoc.doc.length, 2, file.path,"", 0, req.body.desc));
+  console.log(listDoc.doc);
+
+  //contract.methods.create(0,hash).send({from: "0xBE8751f79E9369C3F9E08E864d3229E14Fbf1D8D", gas: 4712388, gasPrice: 100000000000});
 
   res.send(file);
 });
@@ -242,14 +246,16 @@ function sendFile(response, pathPage, cont){
 //read data files starting the server
 function readStartingData(){
   readUser = JSON.parse(fs.readFileSync('data/user.json'));
-  //listDoc = JSON.parse(fs.readFileSync('data/documents.json'));
+  listDoc = JSON.parse(fs.readFileSync('data/documents.json'));
 }
 
 //timer to save data
 setInterval(function(){
   console.log("\nSaving data....\n")
   var dataW = JSON.stringify(readUser);
-  fs.writeFileSync('data/user.json', dataW); 
+  fs.writeFileSync('data/user.json', dataW);
+  var dataD = JSON.stringify(listDoc);
+  fs.writeFileSync('data/documents.json', dataD); 
 }, 20000);
 
 

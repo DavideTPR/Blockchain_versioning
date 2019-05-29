@@ -12,13 +12,13 @@
               if (this.readyState == 4 && this.status == 200) {
                 //document.getElementById("list").innerHTML =
                 //this.responseText;
-                var usr = JSON.parse(this.responseText);
-                console.log(usr);
+                var docs = JSON.parse(this.responseText);
+                console.log(docs);
                 var table = '<table>';
-                for(var i=0; i < usr.user.length; i++){
-                  console.log(usr.user[i]);
+                for(var i=0; i < docs.doc.length; i++){
+                  console.log(docs.doc[i]);
                   table += '<tr>';
-                  table += '<td>'+usr.user[i].id+'</td>'+'<td>'+usr.user[i].first+'</td>'+'<td>'+usr.user[i].last+'</td>';
+                  table += '<td>'+docs.doc[i].id+'</td>'+'<td>'+docs.doc[i].path+'</td>'+'<td>'+docs.doc[i].description+'</td>';
                   table += '</tr>';
                 }
                 table += '</table>';
