@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+    <head>
+
+        <meta charset="utf-8" />
+
+        <title>New Document</title>
+
+        <!--<script src="../JS/web3js.min.js"></script>-->
+        <!--<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>-->
+        <!--<script src="../JS/sjcl.js"></script>-->
+        <!--<script src="../JS/ethCont_interaction.js"></script>-->
+        
+
+    </head>
+
+    <body>
+        <h1>Blockchain Versioning</h1>
+        <h2>Add New Document</h2>
+
+        <form action="http://127.0.0.1:8000/add" enctype="multipart/form-data" method="POST">
+            <p>
+                <p><label>Description</label>
+                <textarea name = "desc"></textarea></p>
+
+                <p><label>File to upload</label>
+                <input type="file" name = "document"> </p>
+
+                <input type="submit" value="Send">
+            </p>
+        
+        </form>
+    </body>
+
+
+</html>

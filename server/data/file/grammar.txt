@@ -1,0 +1,12 @@
+sequence ::= {instruction}
+sequence -> simbolo
+instrunction -> simboli da analizzare o terminali (nel nostro caso sono le istruzioni da seguire)
+
+l'istruzione nel nostro caso è...
+instruction ::= {"Go_forward" | "Turn_left" | "Turn_right" | "Loop" | Concetto ciclo while (Repeat) | generico concetto if}
+
+Repeat ::= {"loop", sequence, "end_loop"}
+
+If ::= {("If_forward" | "If_left" | "If_right"), sequence, "END_IF"}
+
+END_IF ::= {"End_if" | ("Else", sequence, "End_if")}

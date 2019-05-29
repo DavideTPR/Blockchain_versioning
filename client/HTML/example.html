@@ -22,6 +22,26 @@
             Last name: <input type="text" name="lname"><br>
            <button type="submit">Send to backend</button>
           </form>
+
+
+        <div id = "list">
+            <button type="button" onclick="loadDoc()">Change Content</button>
+
+        </div>
+
+        <script>
+            function loadDoc() {
+              var xhttp = new XMLHttpRequest();
+              xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                  document.getElementById("list").innerHTML =
+                  this.responseText;
+                }
+              };
+              xhttp.open("GET", "/dataDoc", true);
+              xhttp.send();
+            }
+            </script>
     </body>
 
 

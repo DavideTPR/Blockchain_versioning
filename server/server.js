@@ -1,10 +1,26 @@
 const fs = require('fs');
+//express
 const express = require('express');
 const parser = require('body-parser');
 const app = express();
+//multer
+const multer  = require('multer');
+const dirSave = './data/file/';
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, dirSave);
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
+  }
+});
+const upload = multer({ storage: storage });
 //web3js
 const web3 = require('web3');
 const web3js = new web3(new web3.providers.HttpProvider("http://127.0.0.1:7545"));
+//crypto
+const crypto = require('crypto');
+const sha256 = crypto.createHash('sha256');
 
 
 var myAddress;
@@ -15,11 +31,20 @@ var contract; //the contract
 
 var readUser; //user of the system
 
-function User(first, last, password, wallet){
+function User(id, first, last, password, wallet, username){
+  this.id = id;
   this.first = first;
   this.last = last;
+  this.username = username;
   this.password = password;
   this.wallet = wallet;
+}
+
+function Document(creator, value, creation, version){
+  this.creator = creator;
+  this.version = version;
+  this.value = value;
+  this.creation = creation;
 }
 
 
@@ -37,6 +62,33 @@ app.get("/"  || "/index" || "/index.html", function(req, res){
 app.get("/subscribe.html" || "/subscribe", function(req, res){
     sendFile(res, '../client/HTML/subscribe.html', 'text/html');
 })
+
+//login request
+app.get("/login.html" || "/login", function(req, res){
+  sendFile(res, '../client/HTML/login.html', 'text/html');
+});
+
+
+//send list of document
+app.get("/list", function(req, res){
+  console.log("getListDoc");
+  res.writeHead(200, {'Content-Type': 'text/html'});
+  res.write(JSON.stringify(readUser));
+  res.end();
+});
+
+
+//example request
+app.get("/dataDoc", function(req, res){
+  console.log("DATADOC");
+  res.writeHead = 'text/html';
+  sendFile(res, '../client/HTML/example.html', 'text/html');
+});
+
+//add new document request
+app.get("/add.html" || "/add", function(req, res){
+  sendFile(res, '../client/HTML/add.html', 'text/html');
+});
 
 //example request
 app.get("/example.html" || "/example", function(req, res){
@@ -62,18 +114,57 @@ app.post('/subscribe', (req, res) => {
     //var dataR = JSON.parse(fs.readFileSync('data/user.json'));
     //console.log(dataR);
     //console.log(new User(req.body.first, req.body.last, req.body.pwd, req.body.wal));
-    readUser.user.push(new User(req.body.first, req.body.last, req.body.pwd, req.body.wal));
-    var user = {
+    readUser.user.push(new User((readUser.user.length),req.body.first, req.body.last, req.body.pwd, req.body.wal, req.body.usr));
+    /*var user = {
       first: req.body.first,
       last: req.body.last,
       password: req.body.pwd,
       wallet: req.body.wal
-    };
+    };*/
 
 
 });
 
+app.post('/login', (req, res) => {
+  console.log("Get POST request");
 
+  var tmp; //tmp object to send to the client
+  //check if the user exist
+  for(usr of readUser.user){
+    if((usr.username == req.body.usr) && (usr.password == req.body.pwd)){
+      console.log("User exist");
+    }
+    else{
+      console.log("Nooooooooooooooo");
+    }
+  }
+
+
+  sendFile(res, '../client/HTML/index.html', 'text/html');
+});
+
+app.post('/add', upload.single('document'), (req, res, next) => {
+  console.log("Get POST request");
+  const file = req.file;
+  if (!file) {
+    const error = new Error('Please upload a file');
+    error.httpStatusCode = 400;
+    return next(error);
+  }
+  console.log(req.body.document);
+  console.log(file);
+
+  var hash = sha256.update(file.path);
+  console.log(hash);
+  //hash = sha256.update(file.path).digest('base64');
+  //console.log(hash);
+  hash = sha256.update(file.path).digest('hex');
+  console.log(hash);
+
+  contract.methods.create(0,hash).send({from: "0xBE8751f79E9369C3F9E08E864d3229E14Fbf1D8D", gas: 4712388, gasPrice: 100000000000});
+
+  res.send(file);
+});
 
 
 //START SERVER
@@ -81,6 +172,9 @@ app.listen(8000, function(){
     setContract();  //create the contract
     readStartingData();
     console.log("Server running at http://127.0.0.1:8000/\n");
+    //9715cde17d06f3c16e198cfc0f048450c92e0c9850fef5f12aa29f23684a2d93
+    //contract.methods.create(0, web3.fromAscii("9715cde17d06f3c16e198cfc0f048450c92e0c9850fef5f12aa29f23684a2d93")).send({from: "0x9f41DD640979fA168F33803c842Bba32DEafAb1A", gas: 4712388, gasPrice: 100000000000});
+
     
     //EXAMPLE OF TRANSACTION USING SMART CONTRACT'S METHODS USING CALL AND SEND
     /*contract.methods.create(7,1).send({from: "0x474C558D42fF151511470cE5F357c77D05cf5934", gas: 4712388, gasPrice: 100000000000});
@@ -121,8 +215,20 @@ app.listen(8000, function(){
         console.log("num: "+res);
       }
     });*/
+
+    /*contract.methods.get(0,0).call({from: "0xBE8751f79E9369C3F9E08E864d3229E14Fbf1D8D", gas: 4712388, gasPrice: 100000000000}, function(err, res){
+      if(err){
+        console.error(err);
+      }
+      else{
+        console.log("creator: "+res.creator);
+        console.log("value: "+res.value);
+        console.log("creation: "+res.creation);
+        console.log("version: "+res.version);
+      }
+    });*/
 });
- 
+
 //send file
 function sendFile(response, pathPage, cont){
     fs.readFile(pathPage, function(err, page){
@@ -136,6 +242,7 @@ function sendFile(response, pathPage, cont){
 //read data files starting the server
 function readStartingData(){
   readUser = JSON.parse(fs.readFileSync('data/user.json'));
+  //listDoc = JSON.parse(fs.readFileSync('data/documents.json'));
 }
 
 //timer to save data
@@ -144,6 +251,18 @@ setInterval(function(){
   var dataW = JSON.stringify(readUser);
   fs.writeFileSync('data/user.json', dataW); 
 }, 20000);
+
+
+//put uploaded file into directory
+function insertDocuments(db, filePath, callback) {
+  var collection = db.collection('user');
+  collection.insertOne({'imagePath' : filePath }, (err, result) => {
+      assert.equal(err, null);
+      callback(result);
+  });
+}
+
+
 
 //set contract information
 function setContract(){
@@ -169,7 +288,7 @@ function setContract(){
           },
           {
             "name": "value",
-            "type": "uint256"
+            "type": "string"
           },
           {
             "name": "creation",
@@ -182,7 +301,26 @@ function setContract(){
         ],
         "payable": false,
         "stateMutability": "view",
-        "type": "function"
+        "type": "function",
+        "signature": "0xf3a924e3"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "name": "id",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "name": "version",
+            "type": "uint256"
+          }
+        ],
+        "name": "CreateDocument",
+        "type": "event",
+        "signature": "0xee2c3f7056dbd5effed6f3fa27b2eb2007ccd25dd5179c7bfcb751312944bcf7"
       },
       {
         "anonymous": false,
@@ -195,7 +333,7 @@ function setContract(){
           {
             "indexed": false,
             "name": "doc",
-            "type": "uint256"
+            "type": "string"
           },
           {
             "indexed": false,
@@ -204,7 +342,8 @@ function setContract(){
           }
         ],
         "name": "ChangeDocument",
-        "type": "event"
+        "type": "event",
+        "signature": "0x34244c4ec878d3f192e60998a65b7ecb9a2b2ea5ac8bdfa40285505a034cfb67"
       },
       {
         "constant": false,
@@ -215,7 +354,7 @@ function setContract(){
           },
           {
             "name": "docv",
-            "type": "uint256"
+            "type": "string"
           }
         ],
         "name": "create",
@@ -231,7 +370,8 @@ function setContract(){
         ],
         "payable": false,
         "stateMutability": "nonpayable",
-        "type": "function"
+        "type": "function",
+        "signature": "0x0118fa49"
       },
       {
         "constant": false,
@@ -246,7 +386,7 @@ function setContract(){
           },
           {
             "name": "docv",
-            "type": "uint256"
+            "type": "string"
           }
         ],
         "name": "update",
@@ -258,7 +398,8 @@ function setContract(){
         ],
         "payable": false,
         "stateMutability": "nonpayable",
-        "type": "function"
+        "type": "function",
+        "signature": "0xd753fd25"
       },
       {
         "constant": true,
@@ -280,7 +421,7 @@ function setContract(){
           },
           {
             "name": "value",
-            "type": "uint256"
+            "type": "string"
           },
           {
             "name": "creation",
@@ -293,7 +434,8 @@ function setContract(){
         ],
         "payable": false,
         "stateMutability": "view",
-        "type": "function"
+        "type": "function",
+        "signature": "0x669e48aa"
       },
       {
         "constant": true,
@@ -312,11 +454,12 @@ function setContract(){
         ],
         "payable": false,
         "stateMutability": "view",
-        "type": "function"
+        "type": "function",
+        "signature": "0x397ce25c"
       }
     ];
 
-    contractAddress = '0x41808BB59c2D89a0c8E876850C5A2471d30b16Fb';
+    contractAddress = '0x7466F17225C1dd7b7636C0884d5d6119c0eADe9c';
 
     contract = new web3js.eth.Contract(contractABI, contractAddress);
 }

@@ -3,21 +3,46 @@
     <head>
 
         <meta charset="utf-8" />
-
         <title>Versioning</title>
-
-        <!--<script src="../JS/web3js.min.js"></script>-->
-        <!--<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>-->
-        <!--<script src="../JS/sjcl.js"></script>-->
-        <!--<script src="../JS/ethCont_interaction.js"></script>-->
-        
+      
+        <script>
+          function loadDoc() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+              if (this.readyState == 4 && this.status == 200) {
+                //document.getElementById("list").innerHTML =
+                //this.responseText;
+                var usr = JSON.parse(this.responseText);
+                console.log(usr);
+                var table = '<table>';
+                for(var i=0; i < usr.user.length; i++){
+                  console.log(usr.user[i]);
+                  table += '<tr>';
+                  table += '<td>'+usr.user[i].id+'</td>'+'<td>'+usr.user[i].first+'</td>'+'<td>'+usr.user[i].last+'</td>';
+                  table += '</tr>';
+                }
+                table += '</table>';
+                document.getElementById("list").innerHTML = table;//usr.user[0].first;
+              }
+            };
+            xhttp.open("GET", "/list", true);
+            xhttp.send();
+          }
+      </script>
 
     </head>
 
-    <body>
+    <body onload="loadDoc()">
         <h1>Blockchain Versioning</h1>
         <p><a href="subscribe.html">Subscribe</a></p>
+        <p><a href="login.html">Login</a></p>
+        <p><a href="add.html">New Document</a></p>
         <p><a href="example.html">Example</a></p>
+
+
+        <div id = "list">
+            <!--<button type="button" onclick="loadDoc()">Change Content</button>-->
+        </div>
     </body>
 
 

@@ -8,7 +8,7 @@ contract Versioning{
     //information about documents
     struct Document{
         address creator;    //creator or modifier
-        uint256 value;      //document hash
+        string value;      //document hash
         uint creation;      //date of creation
         uint8 version;      //document version
     }
@@ -18,15 +18,15 @@ contract Versioning{
     //event to notify the creation of a document
     event CreateDocument(uint256 id, uint256 version);
     //event to notify the modification of a document
-    event ChangeDocument(address usr, uint256 doc, uint256 version);
+    event ChangeDocument(address usr, string doc, uint256 version);
 
     ///@dev create a new document starting the version from 0
     ///@param id document identifier
     ///@param docv document's hash
     ///@param docId document identifier
     ///@param ver document version
-    function create(uint256 id, uint256 docv) public returns (uint256 docId, uint256 ver){
-        require(docv != 0, "No document");  //If document is empty don't execute
+    function create(uint256 id, string memory docv) public returns (uint256 docId, uint256 ver){
+        require(bytes(docv).length != 0, "No document");  //If document is empty don't execute
         //require(doc[id][0].value != 0, "Document already exist"); //wrong id
         
         //Create new document
@@ -45,9 +45,9 @@ contract Versioning{
     ///@param ver actual version of the document
     ///@param docv document's hash
     ///@param newVer new version value
-    function update(uint256 id, uint256 ver, uint256 docv) public returns (uint256 newVer){
-        require(doc[id][ver].value != docv, "Same file");   //Check if new file is equal to old file
-        require(doc[id][ver].value > 0, "Document doesn't exist");  //Check if selected document exist
+    function update(uint256 id, uint256 ver, string memory docv) public returns (uint256 newVer){
+        require(keccak256(abi.encodePacked(doc[id][ver].value)) != keccak256(abi.encodePacked(docv)), "Same file");   //Check if new file is equal to old file
+        require(bytes(doc[id][ver].value).length > 0, "Document doesn't exist");  //Check if selected document exist
         
         //add new version
         doc[id].push(Document({
@@ -65,7 +65,7 @@ contract Versioning{
     ///@dev get version info
     ///@param id document identifier
     ///@param ver actual version of the document
-    function get(uint256 id, uint256 ver) public view returns (address creator, uint256 value, uint creation, uint8
+    function get(uint256 id, uint256 ver) public view returns (address creator, string memory value, uint creation, uint8
     version){
         Document memory d = doc[id][ver];
         return (d.creator, d.value, d.creation, d.version);
