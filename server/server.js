@@ -2,6 +2,8 @@ const fs = require('fs');
 //express
 const express = require('express');
 const parser = require('body-parser');
+const cookieParser = require('cookie-parser');
+var session = require('express-session');
 const app = express();
 //multer
 const multer  = require('multer');
@@ -52,6 +54,28 @@ function Document(id, creator, path, creation, version, description){
 
 //Parser for reading form data
 app.use(parser.urlencoded({ extended: true })); 
+
+//Parser and cookies management
+app.use(cookieParser());
+app.use(session({
+  key: 'user',
+  secret: 'key1',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+      expires: 600000
+  }
+}));
+
+app.use((req, res, next) => {
+  if (req.cookies.user && !req.session.user) {
+      res.clearCookie('user_sid');        
+  }
+
+  req.cookies.id = 3;
+
+  next();
+});
 
 /* G E T  R E Q U E S T */
 
@@ -135,14 +159,12 @@ app.post('/login', (req, res) => {
   for(usr of readUser.user){
     if((usr.username == req.body.usr) && (usr.password == req.body.pwd)){
       console.log("User exist");
-    }
-    else{
-      console.log("User not found.");
+      res.cookie('ID', usr.id, { maxAge: 900000, httpOnly: false});
+      res.cookie('wall', usr.wallet, { maxAge: 900000, httpOnly: false});
+      res.cookie('name', usr.username, { maxAge: 900000, httpOnly: false});
+      res.redirect('/');
     }
   }
-
-
-  sendFile(res, '../client/HTML/index.html', 'text/html');
 });
 
 app.post('/add', upload.single('document'), (req, res, next) => {
@@ -153,21 +175,17 @@ app.post('/add', upload.single('document'), (req, res, next) => {
     error.httpStatusCode = 400;
     return next(error);
   }
-  //console.log(req.body.document);
-  //console.log(file);
 
-  //var hash = sha256.update(file.path);
-  //hash = sha256.update(file.path).digest('base64');
-  //console.log(hash);
   var hash = sha256.update(file.path).digest('hex');
   //console.log(hash);
 
-  listDoc.doc.push(new Document(listDoc.doc.length, 2, file.path,"", 0, req.body.desc));
+  listDoc.doc.push(new Document(listDoc.doc.length, req.cookies.ID, file.path,new Date(), 0, req.body.desc));
   console.log(listDoc.doc);
 
-  //contract.methods.create(0,hash).send({from: "0xBE8751f79E9369C3F9E08E864d3229E14Fbf1D8D", gas: 4712388, gasPrice: 100000000000});
+  contract.methods.create(listDoc.doc.length,hash).send({from: req.cookies.wall, gas: 4712388, gasPrice: 100000000000});
 
-  res.send(file);
+  //res.send(file);
+  res.redirect("/");
 });
 
 

@@ -6,6 +6,30 @@
 
         <title>New Document</title>
 
+        <script>
+            function getCookie(cname) {
+                var name = cname + "=";
+                var decodedCookie = decodeURIComponent(document.cookie);
+                var ca = decodedCookie.split(';');
+                for(var i = 0; i <ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+                }
+                return "";
+            }
+
+            function loadDoc(){
+                if(getCookie("ID") != ""){
+                    document.getElementById("btnSend").disabled = false;
+                }
+            }
+        </script>
+
         <!--<script src="../JS/web3js.min.js"></script>-->
         <!--<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>-->
         <!--<script src="../JS/sjcl.js"></script>-->
@@ -14,9 +38,13 @@
 
     </head>
 
-    <body>
+    <body onload="loadDoc()">
         <h1>Blockchain Versioning</h1>
-        <h2>Add New Document</h2>
+        
+        <table>
+                <td><h2>Add New Document</h2></td>
+                <td><a href="http://127.0.0.1:8000/">Home</a></td>
+            </table>
 
         <form action="http://127.0.0.1:8000/add" enctype="multipart/form-data" method="POST">
             <p>
@@ -26,7 +54,7 @@
                 <p><label>File to upload</label>
                 <input type="file" name = "document"> </p>
 
-                <input type="submit" value="Send">
+                <input type="submit" value="Send" id="btnSend" disabled>
             </p>
         
         </form>
