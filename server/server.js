@@ -76,7 +76,8 @@ app.use((req, res, next) => {
 
   next();
 });
-
+app.use('/CSS',express.static('../client/CSS'));
+app.use('/JS',express.static('../client/JS'));
 /* G E T  R E Q U E S T */
 
 //index request

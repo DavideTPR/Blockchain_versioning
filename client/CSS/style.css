@@ -1,0 +1,66 @@
+@charset "UTF-8";
+
+
+/* table style */
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+  }
+  
+th, td {
+    padding: 5px;
+    text-align: left;    
+}
+
+
+.opt{
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+
+
+/* form style */
+.form-st{
+  margin: 20px;
+}
+
+.label-form{
+  margin: 10px 10px 0 0;
+  display: block;
+}
+
+.input-form{
+  margin: 0 0 0 10px;
+}
+
+.txt-form{
+  margin: 0 0 0 10px;
+  width: 500px;
+  height: 200px;
+}
+
+
+/* menu style */
+.topnav {
+  overflow: hidden;
+  background-color: rgb(255, 250, 250);
+}
+
+.topnav a {
+  float: left;
+  color: #000000;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+.topnav a:hover {
+  background-color: rgb(133, 128, 128);
+  color: rgb(255, 255, 255);
+}
+
+.topnav a.active {
+  background-color: rgb(133, 128, 128);
+  color: white;
+}

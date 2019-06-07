@@ -6,6 +6,9 @@
 
         <title>Subscribe</title>
 
+        <script type="text/javascript" src="JS/versioningWeb.js"></script>
+        <link rel="stylesheet" type="text/css" href="CSS/style.css">
+
         <!--<script src="../JS/web3js.min.js"></script>-->
         <!--<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>-->
         <!--<script src="../JS/sjcl.js"></script>-->
@@ -16,24 +19,30 @@
 
     <body>
         <h1>Blockchain Versioning</h1>
-        <h2>Subscribe Page</h2>
+        
+        <div id="menu" class="topnav">
+            <a href="/">Home</a>
+            <a href="add.html">New Document</a>
+            <a class="active">Subscribe</a>
+            <a href="login.html">Login</a>
+        </div>
 
-        <form action="http://127.0.0.1:8000/subscribe" method="POST">
+        <form action="http://127.0.0.1:8000/subscribe" method="POST" class="form-st">
             <p>
-                <p><label>First name</label>
-                <input type="text" name = "first"> </p>
+                <p><label class="label-form">First name</label>
+                <input type="text" name = "first" class="input-form"> </p>
 
-                <p><label>Last name</label>
-                <input type="text" name = "last"> </p>
+                <p><label class="label-form">Last name</label>
+                <input type="text" name = "last" class="input-form"> </p>
 
-                <p><label>Username</label>
-                <input type="text" name = "usr"> </p>
+                <p><label class="label-form">Username</label>
+                <input type="text" name = "usr" class="input-form"> </p>
 
-                <p><label>Password</label>
-                <input type="password" name = "pwd"></p>
+                <p><label class="label-form">Password</label>
+                <input type="password" name = "pwd" class="input-form"></p>
 
-                <p><label>Wallet</label>
-                <input type="text" name = "wal"></p>
+                <p><label class="label-form">Wallet</label>
+                <input type="text" name = "wal" class="input-form"></p>
 
                 <input type="submit" value="Send">
             </p>

@@ -4,30 +4,10 @@
 
         <meta charset="utf-8" />
         <title>Versioning</title>
-      
-        <script>
 
-          function getCookie(cname) {
-            var name = cname + "=";
-            var decodedCookie = decodeURIComponent(document.cookie);
-            var ca = decodedCookie.split(';');
-            for(var i = 0; i <ca.length; i++) {
-              var c = ca[i];
-              while (c.charAt(0) == ' ') {
-                c = c.substring(1);
-              }
-              if (c.indexOf(name) == 0) {
-                return c.substring(name.length, c.length);
-              }
-            }
-            return "";
-          }
-
-          function logout(){
-            document.cookie = "ID= ; expires = Thu, 01 Jan 1970 00:00:00 GMT"
-            document.cookie = "wall= ; expires = Thu, 01 Jan 1970 00:00:00 GMT"
-            document.cookie = "name= ; expires = Thu, 01 Jan 1970 00:00:00 GMT"
-          }
+        <link rel="stylesheet" type="text/css" href="CSS/style.css">
+        <script type="text/javascript" src="JS/versioningWeb.js"></script>
+        <script s>
           
           function loadDoc() {
             var xhttp = new XMLHttpRequest();
@@ -37,28 +17,30 @@
                 //this.responseText;
                 var docs = JSON.parse(this.responseText);
                 console.log(docs);
-                var table = '<table>';
+                var table = document.getElementById("tbFile");
+                
                 for(var i=0; i < docs.doc.length; i++){
                   console.log(docs.doc[i]);
-                  table += '<tr>';
-                  table += '<td>'+docs.doc[i].id+'</td>'+'<td>'+docs.doc[i].path+'</td>'+'<td>'+docs.doc[i].description+'</td>';
-                  table += '</tr>';
+                  var row = table.insertRow();
+                  var cellId = row.insertCell(0);
+                  var cellName = row.insertCell(1);
+                  var cellVers = row.insertCell(2);
+                  var cellDesc = row.insertCell(3);
+                  var cellUpload = row.insertCell(4);
+                  
+                  cellId.innerHTML = docs.doc[i].id;
+                  cellName.innerHTML = docs.doc[i].path.substring(docs.doc[i].path.lastIndexOf('/')+1);
+                  cellVers.innerHTML = docs.doc[i].version;
+                  cellDesc.innerHTML = docs.doc[i].description;
+                  cellUpload.innerHTML = "<a href='upload.html?ID="+docs.doc[i].id+"'>Update</a>";
+                  
                 }
-                table += '</table>';
-                document.getElementById("list").innerHTML = table;//usr.user[0].first;
               }
             };
             xhttp.open("GET", "/list", true);
             xhttp.send();
-            
-            if(getCookie("ID") != ""){
-              document.getElementById("login").style.display = "none";
-              document.getElementById("subs").style.display = "none";
-              document.getElementById("logout").style.display = "block";
-            }
-            else{
-              document.getElementById("logout").style.display = "none";
-            }
+
+            checkLogged();
 
           }
       </script>
@@ -67,15 +49,33 @@
 
     <body onload="loadDoc()">
         <h1>Blockchain Versioning</h1>
-        <p id="logout"><a href="/" onclick="logout()">Logout</a></p>
+
+        <div id="menu" class="topnav">
+          <a class="active">Home</a>
+          <a href="add.html">New Document</a>
+        </div>
+       <!-- <table class="opt">
+            <tr id = "rowOpt">
+              <th><a href="add.html">New Document</a></th>
+            </tr>
+        </table>-->
+
+        <!--<p id="logout"><a href="/" onclick="logout()">Logout</a></p>
         <p id="subs"><a href="subscribe.html">Subscribe</a></p>
         <p id="login"><a href="login.html">Login</a></p>
-        <p><a href="add.html">New Document</a></p>
-        <p><a href="example.html">Example</a></p>
+        <p><a href="example.html">Example</a></p>-->
 
 
-        <div id = "list">
-            <!--<button type="button" onclick="loadDoc()">Change Content</button>-->
+        <div id = "list" class = "info">
+          <table id = "tbFile">
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Version</th>
+              <th>Description</th>
+              <th></th>
+            </tr>
+          </table>
         </div>
     </body>
 

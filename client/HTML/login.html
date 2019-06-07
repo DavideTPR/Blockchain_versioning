@@ -3,28 +3,29 @@
     <head>
 
         <meta charset="utf-8" />
+        
         <title>Login - Versioning</title>
-        <style>
-             table {
-                 border-spacing: 10px;
-             }
-        </style>
+
+        <link rel="stylesheet" type="text/css" href="CSS/style.css">
+        <script type="text/javascript" src="JS/versioningWeb.js"></script>
 
     </head>
 
     <body>
         <h1>Blockchain Versioning</h1>
-        <table>
-            <td><h3>Login</h3></td>
-            <td><a href="http://127.0.0.1:8000/">Home</a></td>
-        </table>
+        <div id="menu" class="topnav">
+            <a href="/">Home</a>
+            <a href="add.html">New Document</a>
+            <a href="subscribe.html">Subscribe</a>
+            <a class="active">Login</a>
+          </div>
 
-        <form action="http://127.0.0.1:8000/login" method="POST">
+        <form action="http://127.0.0.1:8000/login" method="POST" class="form-st">
             <p>
-                <p><label>Username</label>
-                <input type="text" name = "usr"> </p>
-                <p><label>Password</label>
-                <input type="password" name = "pwd"></p>
+                <p><label class="label-form">Username</label>
+                <input type="text" name = "usr" class="input-form"> </p>
+                <p><label class="label-form">Password</label>
+                <input type="password" name = "pwd" class="input-form"></p>
 
                 <input type="submit" value="Sign in">
             </p>

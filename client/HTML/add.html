@@ -6,24 +6,11 @@
 
         <title>New Document</title>
 
+        <link rel="stylesheet" type="text/css" href="CSS/style.css">
+        <script type="text/javascript" src="JS/versioningWeb.js"></script>
         <script>
-            function getCookie(cname) {
-                var name = cname + "=";
-                var decodedCookie = decodeURIComponent(document.cookie);
-                var ca = decodedCookie.split(';');
-                for(var i = 0; i <ca.length; i++) {
-                var c = ca[i];
-                while (c.charAt(0) == ' ') {
-                    c = c.substring(1);
-                }
-                if (c.indexOf(name) == 0) {
-                    return c.substring(name.length, c.length);
-                }
-                }
-                return "";
-            }
-
             function loadDoc(){
+                checkLogged();
                 if(getCookie("ID") != ""){
                     document.getElementById("btnSend").disabled = false;
                 }
@@ -40,19 +27,20 @@
 
     <body onload="loadDoc()">
         <h1>Blockchain Versioning</h1>
-        
-        <table>
-                <td><h2>Add New Document</h2></td>
-                <td><a href="http://127.0.0.1:8000/">Home</a></td>
-            </table>
 
-        <form action="http://127.0.0.1:8000/add" enctype="multipart/form-data" method="POST">
+        <div id="menu" class="topnav">
+            <a href="/">Home</a>
+            <a class="active">New Document</a>
+          </div>
+
+        <form action="http://127.0.0.1:8000/add" enctype="multipart/form-data" method="POST" class="form-st">
             <p>
-                <p><label>Description</label>
-                <textarea name = "desc"></textarea></p>
 
-                <p><label>File to upload</label>
-                <input type="file" name = "document"> </p>
+                <p><label class="label-form">File to upload</label>
+                    <input type="file" name = "document" class="input-form"> </p>
+
+                <p><label class="label-form">Description</label>
+                    <textarea name = "desc" class="txt-form"></textarea></p>
 
                 <input type="submit" value="Send" id="btnSend" disabled>
             </p>
