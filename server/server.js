@@ -21,8 +21,8 @@ const upload = multer({ storage: storage });
 const web3 = require('web3');
 const web3js = new web3(new web3.providers.HttpProvider("http://127.0.0.1:7545"));
 //crypto
-const crypto = require('crypto');
-const sha256 = crypto.createHash('sha256');
+//const crypto = require('crypto');
+//const sha256 = crypto.createHash('sha256');
 
 
 var myAddress;
@@ -51,6 +51,15 @@ function Document(id, creator, path, creation, version, description){
   this.description = description;
 }
 
+function BlockDoc(id, creator, path, creation, version, description, value){
+  this.id = id;
+  this.creator = creator;
+  this.version = version;
+  this.path = path;
+  this.creation = creation;
+  this.description = description;
+  this.value = value;
+}
 
 //Parser for reading form data
 app.use(parser.urlencoded({ extended: true })); 
@@ -95,15 +104,10 @@ app.get("/login.html" || "/login", function(req, res){
   sendFile(res, '../client/HTML/login.html', 'text/html');
 });
 
-
-//send list of document
-app.get("/list", function(req, res){
-  console.log("getListDoc");
-  res.writeHead(200, {'Content-Type': 'text/html'});
-  res.write(JSON.stringify(listDoc));
-  res.end();
+//update request
+app.get("/update.html" || "/update", function(req, res){
+  sendFile(res, '../client/HTML/update.html', 'text/html');
 });
-
 
 //example request
 app.get("/dataDoc", function(req, res){
@@ -122,6 +126,46 @@ app.get("/example.html" || "/example", function(req, res){
     sendFile(res, '../client/HTML/example.html', 'text/html');
 });
 
+//send list of document
+app.get("/list", function(req, res){
+  console.log("getListDoc");
+  res.writeHead(200, {'Content-Type': 'text/html'});
+  res.write(JSON.stringify(listDoc));
+  res.end();
+});
+
+
+//send list of version
+app.post('/version', (req, res) => {
+  console.log("Get POST request");
+  //console.log(req.body.ID);
+  //console.log(req.body.ver);
+
+  var id = parseInt(req.body.ID, 10);
+  var version = parseInt(req.body.ver);
+
+  var verList = [];
+  
+  var tmp;
+
+  for(var i = 0; i <= version; i++){
+    
+    contract.methods.get(id,i).call({from: req.body.wall, gas: 4712388, gasPrice: 100000000000})
+    .then((result) => {
+      /*console.log("creator: "+res.creator);
+      console.log("value: "+res.value);
+      console.log("creation: "+res.creation);
+      console.log("version: "+res.version);*/
+      tmp = result.value;
+      verList.push(new BlockDoc(id,result.creator, listDoc.doc[id].path, result.creation, i, "", result.value ));
+      res.send(JSON.stringify(new BlockDoc(id,result.creator, listDoc.doc[id].path, result.creation, i, "", result.value )));
+      //console.log(verList);
+    });
+  }
+
+  console.log(verList);
+
+});
 
 
 /* P O S T  R E Q U E S T */
@@ -177,13 +221,27 @@ app.post('/add', upload.single('document'), (req, res, next) => {
     return next(error);
   }
 
-  var hash = sha256.update(file.path).digest('hex');
-  //console.log(hash);
+  var hash = require('crypto').createHash('sha256').update(file.path).digest('hex');
+  
+  //id is zero if no documents, else is equal id of last doc added 1
+  var id;
+  if(listDoc.doc.length == 0){
+    id = 0;
+  }
+  else{
+    id = parseInt(listDoc.doc[listDoc.doc.length-1].id)+1;
+  }
 
-  listDoc.doc.push(new Document(listDoc.doc.length, req.cookies.ID, file.path,new Date(), 0, req.body.desc));
+  listDoc.doc.push(new Document(id, req.cookies.ID, file.path,new Date(), 0, req.body.desc));
   console.log(listDoc.doc);
 
-  contract.methods.create(listDoc.doc.length,hash).send({from: req.cookies.wall, gas: 4712388, gasPrice: 100000000000});
+  contract.methods.create(id,hash).send({from: req.cookies.wall, gas: 4712388, gasPrice: 100000000000})
+  .on('confirmation', (confirmationNumber, receipt) => {//console.log(receipt);
+    /*console.log(receipt.events.CreateDocument.returnValues.id.toNumber());
+    console.log(receipt.events.CreateDocument.returnValues.version.toNumber());
+    console.log(receipt.events.CreateDocument.returnValues.creator);*/
+    listDoc.doc[receipt.events.CreateDocument.returnValues.id.toNumber()].creator = receipt.events.CreateDocument.returnValues.creator;
+  });
 
   //res.send(file);
   res.redirect("/");
@@ -195,6 +253,7 @@ app.listen(8000, function(){
     setContract();  //create the contract
     readStartingData();
     console.log("Server running at http://127.0.0.1:8000/\n");
+
     //9715cde17d06f3c16e198cfc0f048450c92e0c9850fef5f12aa29f23684a2d93
     //contract.methods.create(0, web3.fromAscii("9715cde17d06f3c16e198cfc0f048450c92e0c9850fef5f12aa29f23684a2d93")).send({from: "0x9f41DD640979fA168F33803c842Bba32DEafAb1A", gas: 4712388, gasPrice: 100000000000});
 
@@ -341,11 +400,16 @@ function setContract(){
             "indexed": false,
             "name": "version",
             "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "name": "creator",
+            "type": "address"
           }
         ],
         "name": "CreateDocument",
         "type": "event",
-        "signature": "0xee2c3f7056dbd5effed6f3fa27b2eb2007ccd25dd5179c7bfcb751312944bcf7"
+        "signature": "0x47b938f9605cee74df07534bf75bf0b154110b5080cdafe9f81a913838c30b19"
       },
       {
         "anonymous": false,
@@ -391,6 +455,10 @@ function setContract(){
           {
             "name": "ver",
             "type": "uint256"
+          },
+          {
+            "name": "aCreator",
+            "type": "address"
           }
         ],
         "payable": false,
@@ -484,7 +552,7 @@ function setContract(){
       }
     ];
 
-    contractAddress = '0x7466F17225C1dd7b7636C0884d5d6119c0eADe9c';
+    contractAddress = '0xb8b86bC97F4cc69f7C09eeB5F0fBc498056704AF';
 
     contract = new web3js.eth.Contract(contractABI, contractAddress);
 }

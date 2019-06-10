@@ -16,7 +16,7 @@ contract Versioning{
     mapping (uint256 => Document[]) public doc;    //list of the documents and relative "branch"
 
     //event to notify the creation of a document
-    event CreateDocument(uint256 id, uint256 version);
+    event CreateDocument(uint256 id, uint256 version, address creator);
     //event to notify the modification of a document
     event ChangeDocument(address usr, string doc, uint256 version);
 
@@ -25,7 +25,7 @@ contract Versioning{
     ///@param docv document's hash
     ///@param docId document identifier
     ///@param ver document version
-    function create(uint256 id, string memory docv) public returns (uint256 docId, uint256 ver){
+    function create(uint256 id, string memory docv) public returns (uint256 docId, uint256 ver, address aCreator){
         require(bytes(docv).length != 0, "No document");  //If document is empty don't execute
         //require(doc[id][0].value != 0, "Document already exist"); //wrong id
         
@@ -37,7 +37,9 @@ contract Versioning{
             version: 0
         }));
 
-        return (id, 0);
+        emit CreateDocument(id, 0, msg.sender);
+
+        return (id, 0, msg.sender);
     }
 
     ///@dev add a new version of the document

@@ -1,17 +1,12 @@
 cmake_minimum_required(VERSION 2.8)
-project(simple)
+project(lab4_2)
 
-find_package(OpenCV REQUIRED)
+find_package( OpenCV REQUIRED )
+include_directories( ${OpenCV_INCLUDE_DIRS} )
 
-add_definitions("-std=c++11")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
+add_definitions(-std=gnu++0x)
 
-add_executable(simple
-simple.cpp
-)
+add_executable(lab4_2 main.cpp)
 
-target_link_libraries(simple
-${OpenCV_LIBS}
-)
-
-install(TARGETS simple RUNTIME DESTINATION bin)
+target_link_libraries( lab4_2 ${OpenCV_LIBS} )
+install(TARGETS lab4_2 RUNTIME DESTINATION bin)

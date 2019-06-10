@@ -32,7 +32,7 @@
                   cellName.innerHTML = docs.doc[i].path.substring(docs.doc[i].path.lastIndexOf('/')+1);
                   cellVers.innerHTML = docs.doc[i].version;
                   cellDesc.innerHTML = docs.doc[i].description;
-                  cellUpload.innerHTML = "<a href='upload.html?ID="+docs.doc[i].id+"'>Update</a>";
+                  cellUpload.innerHTML = "<a href='update.html?ID="+docs.doc[i].id+"&ver="+docs.doc[i].version+"'>Update</a>";
                   
                 }
               }
