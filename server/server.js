@@ -129,6 +129,7 @@ app.get("/example.html" || "/example", function(req, res){
 //send list of document
 app.get("/list", function(req, res){
   console.log("getListDoc");
+  readStartingData();
   res.writeHead(200, {'Content-Type': 'text/html'});
   res.write(JSON.stringify(listDoc));
   res.end();
@@ -148,26 +149,22 @@ app.post('/version', (req, res) => {
   
   var tmp;
 
-  for(var i = 0; i <= version; i++){
-    
-    contract.methods.get(id,i).call({from: req.body.wall, gas: 4712388, gasPrice: 100000000000})
-    .then((result) => {
-      /*console.log("creator: "+res.creator);
-      console.log("value: "+res.value);
-      console.log("creation: "+res.creation);
-      console.log("version: "+res.version);*/
-      tmp = result.value;
-      verList.push(new BlockDoc(id,result.creator, listDoc.doc[id].path, result.creation, i, "", result.value ));
-      res.send(JSON.stringify(new BlockDoc(id,result.creator, listDoc.doc[id].path, result.creation, i, "", result.value )));
-      //console.log(verList);
-    });
-  }
+  contract.methods.get(id,version).call({from: req.body.wall, gas: 4712388, gasPrice: 100000000000})
+  .then((result) => {
+    /*console.log("creator: "+res.creator);
+    console.log("value: "+res.value);
+    console.log("creation: "+res.creation);
+    console.log("version: "+res.version);*/
+    //tmp = result.value;
+    //verList.push(new BlockDoc(id,result.creator, listDoc.doc[id].path, result.creation, i, "", result.value ));
+    res.send(JSON.stringify(new BlockDoc(id,result.creator, listDoc.doc[id].path, result.creation, result.version, "", result.value )));
+  });
 
   console.log(verList);
 
 });
 
-
+http://127.0.0.1:8000
 /* P O S T  R E Q U E S T */
 app.post('/example', (req, res) => {
     console.log("Get POST request");
@@ -245,6 +242,60 @@ app.post('/add', upload.single('document'), (req, res, next) => {
 
   //res.send(file);
   res.redirect("/");
+});
+
+app.post('/login', (req, res) => {
+  console.log("Get POST request");
+
+  var tmp; //tmp object to send to the client
+  //check if the user exist
+  for(usr of readUser.user){
+    if((usr.username == req.body.usr) && (usr.password == req.body.pwd)){
+      console.log("User exist");
+      res.cookie('ID', usr.id, { maxAge: 900000, httpOnly: false});
+      res.cookie('wall', usr.wallet, { maxAge: 900000, httpOnly: false});
+      res.cookie('name', usr.username, { maxAge: 900000, httpOnly: false});
+      res.redirect('/');
+    }
+  }
+});
+
+app.post('/update', upload.single('document'), (req, res, next) => {
+  console.log("Get POST request");
+  const file = req.file;
+  if (!file) {
+    const error = new Error('Please upload a file');
+    error.httpStatusCode = 400;
+    return next(error);
+  }
+
+  //Document's ID
+  //console.log(req.body.docId);
+
+  //parse to int id and varsion values
+  var id = parseInt(req.body.docId, 10);
+  var version = parseInt(req.body.docVer);
+
+  //Doc's hash to save into blockchain as doc's value
+  var hash = require('crypto').createHash('sha256').update(file.path).digest('hex');
+
+  //update document's info and save into blockchain
+  contract.methods.update(id,version,hash).send({from: req.cookies.wall, gas: 4712388, gasPrice: 100000000000})
+  .on('confirmation', (confirmationNumber, receipt) => {
+
+    console.log(receipt.events.ChangeDocument.returnValues);
+
+    listDoc.doc[id].version = receipt.events.ChangeDocument.returnValues.version.toNumber();
+    listDoc.doc[id].description = req.body.desc;
+    //listDoc.doc[id].description = req.body.desc;
+    var dataD = JSON.stringify(listDoc);
+    fs.writeFileSync('data/documents.json', dataD);
+    res.redirect("/"); 
+  });
+
+  //res.send(file);
+  //res.redirect("/");
+  //sendFile(res, '../client/HTML/index.html', 'text/html');
 });
 
 

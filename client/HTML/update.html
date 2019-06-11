@@ -17,11 +17,16 @@
                     document.getElementById("btnSend").disabled = false;
                 }
 
+                //get value passed by URL
                 var queryString = decodeURIComponent(window.location.search); //parsing
                 queryString = queryString.substring(1);
                 var queries = queryString.split("&");
-                //alert(queries);
+                
+                //put id and version values into hidden input into the form
+                $("#inpId").val(queries[0].substring(queries[0].indexOf("=")+1));
+                $("#inpVer").val(queries[1].substring(queries[1].indexOf("=")+1));
 
+                //request doc's info
                 $.post("/version",
                 {
                     ID: queries[0].substring(queries[0].indexOf("=")+1),
@@ -30,7 +35,12 @@
                 },
 
                 function(data,status){
-                    alert("Data: "+data);
+                    //when post gives response print the information
+                    var ver = JSON.parse(data);
+                    $("#title").text($("#title").text()+ver.path.substring(ver.path.lastIndexOf('/')+1));
+                    $("#version").text(ver.version);
+                    $("#creator").text(ver.creator);
+                    $("#value").text(ver.value);
                 });
             });
 
@@ -63,7 +73,11 @@
 
         <h2 id="title"> Update - </h2>
         <div id="act">
-            <form action="http://127.0.0.1:8000/add" enctype="multipart/form-data" method="POST" class="form-st">
+            <p><label>Version: </label> <label id="version"></label></p>
+            <p><label>Value: </label> <label id="value"></label></p>
+            <p><label>Creator: </label> <label id="creator"></label></p>
+
+            <form action="http://127.0.0.1:8000/update" enctype="multipart/form-data" method="POST" class="form-st">
                 <p>
 
                     <p><label class="label-form">File to upload</label>
@@ -71,6 +85,9 @@
 
                     <p><label class="label-form">Description</label>
                         <textarea name = "desc" class="txt-form"></textarea></p>
+
+                    <input type="hidden" name="docId" id="inpId">
+                    <input type="hidden" name="docVer" id="inpVer">
 
                     <input type="submit" value="Send" id="btnSend" disabled>
                 </p>
