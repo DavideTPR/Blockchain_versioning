@@ -64,3 +64,13 @@ th, td {
   background-color: rgb(133, 128, 128);
   color: white;
 }
+
+/* Info Style */
+.listOld {
+	float:left;
+	clear:left;
+}
+.infoOld {
+  margin: 0 0 0 10px;
+	float:left;
+}

@@ -126,6 +126,10 @@ app.get("/example.html" || "/example", function(req, res){
     sendFile(res, '../client/HTML/example.html', 'text/html');
 });
 
+app.get("/updError" || "/updError.html", function(req, res){
+  sendFile(res, '../client/HTML/updError.html', 'text/html');
+})
+
 //send list of document
 app.get("/list", function(req, res){
   console.log("getListDoc");
@@ -151,20 +155,14 @@ app.post('/version', (req, res) => {
 
   contract.methods.get(id,version).call({from: req.body.wall, gas: 4712388, gasPrice: 100000000000})
   .then((result) => {
-    /*console.log("creator: "+res.creator);
-    console.log("value: "+res.value);
-    console.log("creation: "+res.creation);
-    console.log("version: "+res.version);*/
-    //tmp = result.value;
-    //verList.push(new BlockDoc(id,result.creator, listDoc.doc[id].path, result.creation, i, "", result.value ));
-    res.send(JSON.stringify(new BlockDoc(id,result.creator, listDoc.doc[id].path, result.creation, result.version, "", result.value )));
+    res.send(JSON.stringify(new BlockDoc(id,result.creator, listDoc.doc[id].path, new Date(result.creation.toNumber()*1000).toUTCString(), result.version, "", result.value )));
   });
 
   console.log(verList);
 
 });
 
-http://127.0.0.1:8000
+//http://127.0.0.1:8000
 /* P O S T  R E Q U E S T */
 app.post('/example', (req, res) => {
     console.log("Get POST request");
@@ -230,18 +228,21 @@ app.post('/add', upload.single('document'), (req, res, next) => {
   }
 
   listDoc.doc.push(new Document(id, req.cookies.ID, file.path,new Date(), 0, req.body.desc));
-  console.log(listDoc.doc);
+  //console.log(listDoc.doc);
 
   contract.methods.create(id,hash).send({from: req.cookies.wall, gas: 4712388, gasPrice: 100000000000})
   .on('confirmation', (confirmationNumber, receipt) => {//console.log(receipt);
     /*console.log(receipt.events.CreateDocument.returnValues.id.toNumber());
     console.log(receipt.events.CreateDocument.returnValues.version.toNumber());
     console.log(receipt.events.CreateDocument.returnValues.creator);*/
-    listDoc.doc[receipt.events.CreateDocument.returnValues.id.toNumber()].creator = receipt.events.CreateDocument.returnValues.creator;
+    //listDoc.doc[receipt.events.CreateDocument.returnValues.id.toNumber()].creator = receipt.events.CreateDocument.returnValues.creator;
+    var dataD = JSON.stringify(listDoc);
+    fs.writeFileSync('data/documents.json', dataD);
+    res.redirect("/");
   });
 
   //res.send(file);
-  res.redirect("/");
+  //res.redirect("/");
 });
 
 app.post('/login', (req, res) => {
@@ -291,11 +292,10 @@ app.post('/update', upload.single('document'), (req, res, next) => {
     var dataD = JSON.stringify(listDoc);
     fs.writeFileSync('data/documents.json', dataD);
     res.redirect("/"); 
+  }).on('error', ()=>{
+    res.redirect("/updError");
   });
 
-  //res.send(file);
-  //res.redirect("/");
-  //sendFile(res, '../client/HTML/index.html', 'text/html');
 });
 
 
@@ -304,62 +304,6 @@ app.listen(8000, function(){
     setContract();  //create the contract
     readStartingData();
     console.log("Server running at http://127.0.0.1:8000/\n");
-
-    //9715cde17d06f3c16e198cfc0f048450c92e0c9850fef5f12aa29f23684a2d93
-    //contract.methods.create(0, web3.fromAscii("9715cde17d06f3c16e198cfc0f048450c92e0c9850fef5f12aa29f23684a2d93")).send({from: "0x9f41DD640979fA168F33803c842Bba32DEafAb1A", gas: 4712388, gasPrice: 100000000000});
-
-    
-    //EXAMPLE OF TRANSACTION USING SMART CONTRACT'S METHODS USING CALL AND SEND
-    /*contract.methods.create(7,1).send({from: "0x474C558D42fF151511470cE5F357c77D05cf5934", gas: 4712388, gasPrice: 100000000000});
-    
-    contract.methods.getNumVer(4).call({from: "0x474C558D42fF151511470cE5F357c77D05cf5934", gas: 4712388, gasPrice: 100000000000}, function(err, res){
-      if(err){
-        console.error(err);
-      }
-      else{
-        console.log("num: "+res);
-      }
-    });
-
-    contract.methods.update(4,0,57).send({from: "0x474C558D42fF151511470cE5F357c77D05cf5934", gas: 4712388, gasPrice: 100000000000});
-
-    contract.methods.update(7,4,7).send({from: "0x474C558D42fF151511470cE5F357c77D05cf5934", gas: 4712388, gasPrice: 100000000000}).on('confirmation', (confirmationNumber, receipt) => {/*console.log(receipt);
-      console.log(receipt.events.ChangeDocument.returnValues.usr);
-      console.log(receipt.events.ChangeDocument.returnValues.doc.toNumber());
-      console.log(receipt.events.ChangeDocument.returnValues.version.toNumber());});
-
-    contract.methods.get(7,1).call({from: "0x474C558D42fF151511470cE5F357c77D05cf5934", gas: 4712388, gasPrice: 100000000000}, function(err, res){
-      if(err){
-        console.error(err);
-      }
-      else{
-        console.log("creator: "+res.creator);
-        console.log("value: "+res.value);
-        console.log("creation: "+res.creation);
-        console.log("version: "+res.version);
-      }
-    });
-
-    contract.methods.getNumVer(7).call({from: "0x474C558D42fF151511470cE5F357c77D05cf5934", gas: 4712388, gasPrice: 100000000000}, function(err, res){
-      if(err){
-        console.error(err);
-      }
-      else{
-        console.log("num: "+res);
-      }
-    });*/
-
-    /*contract.methods.get(0,0).call({from: "0xBE8751f79E9369C3F9E08E864d3229E14Fbf1D8D", gas: 4712388, gasPrice: 100000000000}, function(err, res){
-      if(err){
-        console.error(err);
-      }
-      else{
-        console.log("creator: "+res.creator);
-        console.log("value: "+res.value);
-        console.log("creation: "+res.creation);
-        console.log("version: "+res.version);
-      }
-    });*/
 });
 
 //send file
