@@ -43,6 +43,7 @@
                     $("#value").text(ver.value);
                     $("#creation").text(ver.creation);
 
+
                     //add element to select list
                     for(var i = 0; i < parseInt(ver.version); i++){
                         var o = new Option("Version "+i, i);
@@ -81,6 +82,12 @@
             });
         </script>
 
+        <!--<script src="../JS/web3js.min.js"></script>-->
+        <!--<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>-->
+        <!--<script src="../JS/sjcl.js"></script>-->
+        <!--<script src="../JS/ethCont_interaction.js"></script>-->
+        
+
     </head>
 
     <body>
@@ -91,49 +98,10 @@
             <a href="add.html">New Document</a>
             <a class="active">Update</a>
           </div>
+          
+        <h2>Error:</h2>
+        <p>An error occur.</p>
 
-        <h2 id="title"> Update - </h2>
-        <h3>Actual version</h3>
-        <div id="act">
-            <p><label>Version: </label> <label id="version"></label></p>
-            <p><label>Value: </label> <label id="value"></label></p>
-            <p><label>Creator: </label> <label id="creator"></label></p>
-            <p><label>Creation date: </label> <label id="creation"></label></p>
-
-            <form action="http://127.0.0.1:8000/update" enctype="multipart/form-data" method="POST" class="form-st">
-                <p>
-
-                    <p><label class="label-form">File to upload</label>
-                        <input type="file" name = "document" class="input-form"> </p>
-
-                    <p><label class="label-form">Description</label>
-                        <textarea name = "desc" class="txt-form"></textarea></p>
-
-                    <input type="hidden" name="docId" id="inpId">
-                    <input type="hidden" name="docVer" id="inpVer">
-
-                    <input type="submit" value="Send" id="btnSend" disabled>
-                </p>
-            
-            </form>
-        </div>
-
-
-        <h3>Old version info:</h3>
-        <div id="oldVersionInfo">
-
-            <div class="listOld">
-                <select name="oldVersionList" id="oldVersionList" multiple>
-                </select>
-            </div>
-
-            <div class="infoOld">
-                <p><label>Version: </label> <label id="oldVersion"></label></p>
-                <p><label>Value: </label> <label id="oldValue"></label></p>
-                <p><label>Creator: </label> <label id="oldCreator"></label></p>
-                <p><label>Creation date: </label> <label id="oldCreation"></label></p>
-            </div>
-        </div>
     </body>
 
 

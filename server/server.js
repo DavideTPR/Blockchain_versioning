@@ -1,11 +1,13 @@
+//fs for file system
 const fs = require('fs');
-//express
+//express for web server
 const express = require('express');
-const parser = require('body-parser');
-const cookieParser = require('cookie-parser');
+const parser = require('body-parser');  //read form data
+const cookieParser = require('cookie-parser'); //to manage coockie
 var session = require('express-session');
 const app = express();
-//multer
+//multer for saving uploaded file
+//set up saving directory
 const multer  = require('multer');
 const dirSave = './data/file/';
 const storage = multer.diskStorage({
@@ -17,12 +19,9 @@ const storage = multer.diskStorage({
   }
 });
 const upload = multer({ storage: storage });
-//web3js
+//web3js to interface smart contract
 const web3 = require('web3');
 const web3js = new web3(new web3.providers.HttpProvider("http://127.0.0.1:7545"));
-//crypto
-//const crypto = require('crypto');
-//const sha256 = crypto.createHash('sha256');
 
 
 var myAddress;
@@ -33,6 +32,7 @@ var contract; //the contract
 
 var readUser; //user of the system
 
+//User object
 function User(id, first, last, password, wallet, username){
   this.id = id;
   this.first = first;
@@ -42,6 +42,7 @@ function User(id, first, last, password, wallet, username){
   this.wallet = wallet;
 }
 
+//local Document object
 function Document(id, creator, path, creation, version, description){
   this.id = id;
   this.creator = creator;
@@ -51,6 +52,7 @@ function Document(id, creator, path, creation, version, description){
   this.description = description;
 }
 
+//Data Object received from blockchain
 function BlockDoc(id, creator, path, creation, version, description, value){
   this.id = id;
   this.creator = creator;
@@ -85,6 +87,8 @@ app.use((req, res, next) => {
 
   next();
 });
+
+//send automatically style and script files
 app.use('/CSS',express.static('../client/CSS'));
 app.use('/JS',express.static('../client/JS'));
 /* G E T  R E Q U E S T */
@@ -121,14 +125,18 @@ app.get("/add.html" || "/add", function(req, res){
   sendFile(res, '../client/HTML/add.html', 'text/html');
 });
 
-//example request
-app.get("/example.html" || "/example", function(req, res){
-    sendFile(res, '../client/HTML/example.html', 'text/html');
-});
-
+//error page for same file upload
 app.get("/updError" || "/updError.html", function(req, res){
   sendFile(res, '../client/HTML/updError.html', 'text/html');
 })
+
+//general error page
+app.get("/error" || "/error.html", function(req, res){
+  sendFile(res, '../client/HTML/error.html', 'text/html');
+})
+
+
+/** A J A X / J Q U E R Y   R E Q U E S T  */
 
 //send list of document
 app.get("/list", function(req, res){
@@ -143,27 +151,24 @@ app.get("/list", function(req, res){
 //send list of version
 app.post('/version', (req, res) => {
   console.log("Get POST request");
-  //console.log(req.body.ID);
-  //console.log(req.body.ver);
 
+  //parse id and version to int
   var id = parseInt(req.body.ID, 10);
   var version = parseInt(req.body.ver);
 
-  var verList = [];
-  
-  var tmp;
-
+  //use call because this transaction it's informative and it hasn't to use currency
   contract.methods.get(id,version).call({from: req.body.wall, gas: 4712388, gasPrice: 100000000000})
   .then((result) => {
     res.send(JSON.stringify(new BlockDoc(id,result.creator, listDoc.doc[id].path, new Date(result.creation.toNumber()*1000).toUTCString(), result.version, "", result.value )));
+  })
+  .catch(err => {
+    res.redirect("/error.html");
   });
-
-  console.log(verList);
 
 });
 
-//http://127.0.0.1:8000
 /* P O S T  R E Q U E S T */
+//example of post request
 app.post('/example', (req, res) => {
     console.log("Get POST request");
 });
@@ -171,26 +176,14 @@ app.post('/example', (req, res) => {
 //data from subscribe
 app.post('/subscribe', (req, res) => {
     console.log("Get POST SUB request");
-    res.send(`Full name is:${req.body.first} ${req.body.last}.`);
-    console.log("First: "+req.body.first);
-    console.log("Last: "+req.body.last);
-    console.log("Password: "+req.body.pwd);
-    console.log("Wallet: "+req.body.wal);
 
-    //var dataR = JSON.parse(fs.readFileSync('data/user.json'));
-    //console.log(dataR);
-    //console.log(new User(req.body.first, req.body.last, req.body.pwd, req.body.wal));
+    
+    //add user to user.json document
     readUser.user.push(new User((readUser.user.length),req.body.first, req.body.last, req.body.pwd, req.body.wal, req.body.usr));
-    /*var user = {
-      first: req.body.first,
-      last: req.body.last,
-      password: req.body.pwd,
-      wallet: req.body.wal
-    };*/
-
-
+    res.redirect("/login.html");
 });
 
+//get data from login form and save them
 app.post('/login', (req, res) => {
   console.log("Get POST request");
 
@@ -198,7 +191,8 @@ app.post('/login', (req, res) => {
   //check if the user exist
   for(usr of readUser.user){
     if((usr.username == req.body.usr) && (usr.password == req.body.pwd)){
-      console.log("User exist");
+      //console.log("User exist");
+      //if user exist save the cookies
       res.cookie('ID', usr.id, { maxAge: 900000, httpOnly: false});
       res.cookie('wall', usr.wallet, { maxAge: 900000, httpOnly: false});
       res.cookie('name', usr.username, { maxAge: 900000, httpOnly: false});
@@ -207,6 +201,7 @@ app.post('/login', (req, res) => {
   }
 });
 
+//add new documents into documents.josn and create them into blockchain
 app.post('/add', upload.single('document'), (req, res, next) => {
   console.log("Get POST request");
   const file = req.file;
@@ -216,6 +211,8 @@ app.post('/add', upload.single('document'), (req, res, next) => {
     return next(error);
   }
 
+  //hash of file
+  //We create the seed every time to avoid recreation error
   var hash = require('crypto').createHash('sha256').update(file.path).digest('hex');
   
   //id is zero if no documents, else is equal id of last doc added 1
@@ -227,40 +224,24 @@ app.post('/add', upload.single('document'), (req, res, next) => {
     id = parseInt(listDoc.doc[listDoc.doc.length-1].id)+1;
   }
 
+  //add new doc into the list
   listDoc.doc.push(new Document(id, req.cookies.ID, file.path,new Date(), 0, req.body.desc));
   //console.log(listDoc.doc);
 
+  //create new element into blockchain
   contract.methods.create(id,hash).send({from: req.cookies.wall, gas: 4712388, gasPrice: 100000000000})
-  .on('confirmation', (confirmationNumber, receipt) => {//console.log(receipt);
-    /*console.log(receipt.events.CreateDocument.returnValues.id.toNumber());
-    console.log(receipt.events.CreateDocument.returnValues.version.toNumber());
-    console.log(receipt.events.CreateDocument.returnValues.creator);*/
-    //listDoc.doc[receipt.events.CreateDocument.returnValues.id.toNumber()].creator = receipt.events.CreateDocument.returnValues.creator;
+  .on('confirmation', (confirmationNumber, receipt) => {
+    //save data and return to home page
     var dataD = JSON.stringify(listDoc);
     fs.writeFileSync('data/documents.json', dataD);
     res.redirect("/");
+  })
+  .on('error', ()=>{
+    res.redirect("/error.html");
   });
-
-  //res.send(file);
-  //res.redirect("/");
 });
 
-app.post('/login', (req, res) => {
-  console.log("Get POST request");
-
-  var tmp; //tmp object to send to the client
-  //check if the user exist
-  for(usr of readUser.user){
-    if((usr.username == req.body.usr) && (usr.password == req.body.pwd)){
-      console.log("User exist");
-      res.cookie('ID', usr.id, { maxAge: 900000, httpOnly: false});
-      res.cookie('wall', usr.wallet, { maxAge: 900000, httpOnly: false});
-      res.cookie('name', usr.username, { maxAge: 900000, httpOnly: false});
-      res.redirect('/');
-    }
-  }
-});
-
+//update a documents contained into blockchain
 app.post('/update', upload.single('document'), (req, res, next) => {
   console.log("Get POST request");
   const file = req.file;
@@ -323,6 +304,7 @@ function readStartingData(){
 }
 
 //timer to save data
+//seve data with timer to avoid concurrent access
 setInterval(function(){
   console.log("\nSaving data....\n")
   var dataW = JSON.stringify(readUser);
@@ -330,18 +312,6 @@ setInterval(function(){
   var dataD = JSON.stringify(listDoc);
   fs.writeFileSync('data/documents.json', dataD); 
 }, 20000);
-
-
-//put uploaded file into directory
-function insertDocuments(db, filePath, callback) {
-  var collection = db.collection('user');
-  collection.insertOne({'imagePath' : filePath }, (err, result) => {
-      assert.equal(err, null);
-      callback(result);
-  });
-}
-
-
 
 //set contract information
 function setContract(){
@@ -547,7 +517,7 @@ function setContract(){
       }
     ];
 
-    contractAddress = '0xb8b86bC97F4cc69f7C09eeB5F0fBc498056704AF';
+    contractAddress = '0x585a79b73b9644546675401Ef44a45Bfa05dB268';
 
     contract = new web3js.eth.Contract(contractABI, contractAddress);
 }

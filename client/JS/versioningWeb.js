@@ -36,7 +36,7 @@ function checkLogged(){
   }
 }
 
-//logout function, delete cookies
+//logout function, delete cookies. To delete cookie, set up them with date earlier than current
 function logout(){
   document.cookie = "ID= ; expires = Thu, 01 Jan 1970 00:00:00 GMT"
   document.cookie = "wall= ; expires = Thu, 01 Jan 1970 00:00:00 GMT"

@@ -6707,12 +6707,12 @@
     "5777": {
       "events": {},
       "links": {},
-      "address": "0xb8b86bC97F4cc69f7C09eeB5F0fBc498056704AF",
-      "transactionHash": "0x7b294d777cd5d27e977bec625d9859876a61026aff95d1777e28733300950d48"
+      "address": "0x585a79b73b9644546675401Ef44a45Bfa05dB268",
+      "transactionHash": "0xcd085f9aa70170834bb049227e522c76a14aaa5f3bf222b75cf54a7c0411a223"
     }
   },
   "schemaVersion": "3.0.6",
-  "updatedAt": "2019-06-10T11:42:25.874Z",
+  "updatedAt": "2019-06-12T12:32:10.289Z",
   "devdoc": {
     "author": "Davide Tarasconi",
     "methods": {

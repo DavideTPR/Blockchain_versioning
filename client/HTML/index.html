@@ -10,15 +10,16 @@
         <script s>
           
           function loadDoc() {
+            //AJAX get request to populate dynamically table of file
             var xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function() {
               if (this.readyState == 4 && this.status == 200) {
-                //document.getElementById("list").innerHTML =
-                //this.responseText;
+                
                 var docs = JSON.parse(this.responseText);
                 console.log(docs);
                 var table = document.getElementById("tbFile");
                 
+                //populate table listing current file and theirs version
                 for(var i=0; i < docs.doc.length; i++){
                   console.log(docs.doc[i]);
                   var row = table.insertRow();
@@ -39,7 +40,7 @@
             };
             xhttp.open("GET", "/list", true);
             xhttp.send();
-
+            //check if someone's logged
             checkLogged();
 
           }
@@ -54,17 +55,6 @@
           <a class="active">Home</a>
           <a href="add.html">New Document</a>
         </div>
-       <!-- <table class="opt">
-            <tr id = "rowOpt">
-              <th><a href="add.html">New Document</a></th>
-            </tr>
-        </table>-->
-
-        <!--<p id="logout"><a href="/" onclick="logout()">Logout</a></p>
-        <p id="subs"><a href="subscribe.html">Subscribe</a></p>
-        <p id="login"><a href="login.html">Login</a></p>
-        <p><a href="example.html">Example</a></p>-->
-
 
         <div id = "list" class = "info">
           <table id = "tbFile">
