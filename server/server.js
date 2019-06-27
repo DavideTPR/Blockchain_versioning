@@ -21,7 +21,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 //web3js to interface smart contract
 const web3 = require('web3');
-const web3js = new web3(new web3.providers.HttpProvider("http://127.0.0.1:7545"));
+const web3js = new web3(new web3.providers.HttpProvider("http://127.0.0.1:7575"));
 
 
 var myAddress;

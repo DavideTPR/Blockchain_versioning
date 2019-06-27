@@ -21,12 +21,13 @@
                 var queryString = decodeURIComponent(window.location.search); //parsing
                 queryString = queryString.substring(1);
                 var queries = queryString.split("&");
+                var realName = "";
                 
                 //put id and version values into hidden input into the form
                 $("#inpId").val(queries[0].substring(queries[0].indexOf("=")+1));
                 $("#inpVer").val(queries[1].substring(queries[1].indexOf("=")+1));
 
-                //request doc's info
+                //request doc's infojs filename compare
                 $.post("/version",
                 {
                     ID: queries[0].substring(queries[0].indexOf("=")+1),
@@ -37,6 +38,7 @@
                 function(data,status){
                     //when post gives response print the information
                     var ver = JSON.parse(data);
+                    realName = ver.path.substring(ver.path.lastIndexOf('/')+1);
                     $("#title").text($("#title").text()+ver.path.substring(ver.path.lastIndexOf('/')+1));
                     $("#version").text(ver.version);
                     $("#creator").text(ver.creator);
@@ -78,6 +80,19 @@
 
 
                 });
+
+                //check if selected file name is the same of th file to upload
+                $("#idDocSel").change(function(){
+                    var fileName = document.getElementById("idDocSel").value.split(/(\\|\/)/g).pop();
+                    if(fileName != realName){
+                        alert("Selected file different from file to upload!");
+                        document.getElementById("btnSend").disabled = true;
+                    }
+                    else
+                        if(getCookie("ID") != "" && fileName == realName){
+                            document.getElementById("btnSend").disabled = false;
+                        }
+                });
             });
         </script>
 
@@ -104,7 +119,7 @@
                 <p>
 
                     <p><label class="label-form">File to upload</label>
-                        <input type="file" name = "document" class="input-form"> </p>
+                        <input id="idDocSel" type="file" name = "document" class="input-form"> </p>
 
                     <p><label class="label-form">Description</label>
                         <textarea name = "desc" class="txt-form"></textarea></p>
